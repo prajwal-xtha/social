@@ -54,59 +54,64 @@ const register = async (req, res) => {
 
 // LOGIN CONTROLLER
 const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  // try {
+  //   const { email, password } = req.body;
 
-    // find user
-    const findUser = await user.findOne({ email });
+  //   // find user
+  //   const findUser = await user.findOne({ email });
 
-    if (!findUser) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
+  //   if (!findUser) {
+  //     return res.status(404).json({
+  //       success: false,
+  //       message: "User not found",
+  //     });
+  //   }
 
-    // compare password
-    const isMatch = await bcrypt.compare(
-      password,
-      findUser.password
-    );
+  //   // compare password
+  //   const isMatch = await bcrypt.compare(
+  //     password,
+  //     findUser.password
+  //   );
 
-    if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid password",
-      });
-    }
+  //   if (!isMatch) {
+  //     return res.status(400).json({
+  //       success: false,
+  //       message: "Invalid password",
+  //     });
+  //   }
 
-    // create jwt token
-    const accessToken = jwt.sign(
-      {
-        userId: findUser._id,
-        username: findUser.username,
-        role: findUser.role,
-        userprofile:findUser.userprofile,
-      },
-      "secretkey",
-      { expiresIn: "10m" }
-    );
+  //   // create jwt token
+  //   const accessToken = jwt.sign(
+  //     {
+  //       userId: findUser._id,
+  //       username: findUser.username,
+  //       role: findUser.role,
+  //       userprofile:findUser.userprofile,
+  //     },
+  //     "secretkey",
+  //     { expiresIn: "10m" }
+  //   );
 
+  //   res.status(200).json({
+  //     success: true,
+  //     message: "Login successful",
+  //     token: accessToken,
+  //     userId:findUser._id,
+  //   });
+
+  // } catch (error) {
+  //   console.log(error);
+
+  //   res.status(500).json({
+  //     success: false,
+  //     message: "Something went wrong",
+  //   });
+  // }
+  
     res.status(200).json({
       success: true,
       message: "Login successful",
-      token: accessToken,
-      userId:findUser._id,
     });
-
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong",
-    });
-  }
 };
 //home
 const home = async (req, res) => {
