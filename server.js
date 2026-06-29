@@ -9,7 +9,7 @@ const routes=require('./routes/routes')
 
 app.use(cors());
 app.use(express.json())
-app.use('/api',routes);
+app.use('/',routes);
 connectdb();
 app.listen(PORT,()=>{
     console.log(`server is live at ${PORT}`)
