@@ -126,7 +126,7 @@ const register = async (req, res) => {
 
 //view all feed
 const feed = async (req, res) => {
-  console.log("Feed route hit");
+  console.log("Feedd route hit");
   try {
     console.log(req.params);
 
