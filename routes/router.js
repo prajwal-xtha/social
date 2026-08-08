@@ -2,7 +2,7 @@ const express=require('express')
 const routes=express.Router()
 const middleware1=require('../midleware/middleware')
 
-const {home,register,feed,login,test,createpost}=require('../controller/controller')
+const {home,register,feed,login,test,createpost,sug,profile}=require('../controller/controller')
 
 //register and login
 routes.get('/',middleware1,home)
@@ -15,10 +15,14 @@ routes.post('/login',login)
 
 
 //view all user
-routes.put("/feed/:postclick", feed);
+routes.put("/feed/:postclick",middleware1, feed);
 routes.get('/test',middleware1,test)
 //post 
 routes.post('/post',middleware1,createpost)
+//frend sugestion
+routes.get("/sug",middleware1,sug)
+routes.get("/profile",middleware1,profile)
+
 
 
 module.exports=routes

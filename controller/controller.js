@@ -66,95 +66,59 @@ const register = async (req, res) => {
     }
   };
 //login 
-// const login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     // find user
-//     const findUser = await user.findOne({ email });
-
-//     if (!findUser) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "User not found",
-//       });
-//     }
-
-//     // compare password
-//     const isMatch = await bcrypt.compare(
-//       password,
-//       findUser.password
-//     );
-
-//     if (!isMatch) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid password",
-//       });
-//     }
-
-//     // create jwt token
-//     const accessToken = jwt.sign(
-//       {
-//         userId: findUser._id,
-//         username: findUser.username,
-//         role: findUser.role,
-//         userprofile:findUser.userprofile,
-//       },
-//       process.env.SECRECT_KEY,
-//       { expiresIn: "10m" }
-//     );
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Login successful",
-//       token: accessToken,
-//       userId:findUser._id,
-//     });
-
-//   } catch (error) {
-//     console.log(error);
-
-//     res.status(500).json({
-//       success: false,
-//       message: "Something went wrong",
-//     });
-//   }
 
 
-
-
-//view all feed
 const feed = async (req, res) => {
-  console.log("Feedd route hit");
   try {
-    console.log(req.params);
-
     const { postclick } = req.params;
+    const userId = req.user.userId;
     const already = await post.findById(postclick);
-
-    // const username = req.user.username;
-    // console.log(username)
-    console.log("Post ID:", postclick);
-
-    const updated = await post.findByIdAndUpdate(
-      postclick,
-      { $inc: { postlike: 1 } },
+    const alreadyLiked = already.likes.some(
+      (id) => id.toString() === userId
     );
-    console.log(updated);
+    if(!alreadyLiked){
+      await post.findByIdAndUpdate(
+        postclick,
+        {
+          $push: { likes: userId },
+          $inc: { postlike: 1 } 
 
+        },{ new: true }
+      )
+      }
+    else{
+      await post.findByIdAndUpdate(
+        postclick,
+        {
+          $pull: { likes: userId },
+          $inc: { postlike: -1 }
+        },{ new: true })
+    }
+    // const likecount = await post.findById(postclick);
+    // const totalLikes = likecount.likes.length;
+
+    const after=await post.find()
     res.status(200).json({
       success: true,
-      post: updated,
+      postclick,
+      already,
+      alreadyLiked,
+      userId,
+      // totalLikes,
+      // after
     });
+
   } catch (error) {
     console.log(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
+
+
 const login = async (req,res)=>{
   try {
         const { email, password } = req.body;
@@ -191,7 +155,7 @@ const login = async (req,res)=>{
             userprofile:findUser.userprofile,
           },
           process.env.SECRECT_KEY,
-          { expiresIn: "40m" }
+          { expiresIn: "2h" }
         );
     
         res.status(200).json({
@@ -246,5 +210,48 @@ const createpost = async (req, res) => {
     });
   }
 };
+const sug = async (req, res) => {
+  try {
+    const loggedInUserId = req.user.username;
+    // const admin = loggedInUserId;
+    const admin = await user.find({
+      username: loggedInUserId,
+    });
+    const suggestion = await user.find({ username: { $ne: loggedInUserId } });
 
-module.exports={home,register,feed,login,test,createpost}
+    res.status(200).json({
+      success: true,
+      suggestion,
+      admin,
+    });
+  } catch (err) {
+    console.error("useris",err);
+
+    res.status(500).json({
+      success: false,
+      message:"false username",
+  
+    });
+  }
+};
+
+// profile
+const profile = async (req,res)=>{
+try{
+  
+  res.status(200).json({
+    success: true,
+    
+  });
+}
+catch(err){
+  res.status(500).json({
+    success: false,
+    message:"failed to lode profile",
+  });
+}
+}
+
+
+
+module.exports={home,register,feed,login,test,createpost,sug,profile}
