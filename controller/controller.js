@@ -2,6 +2,8 @@ require('dotenv').config()
 const user = require("../module/user");
 const post =require("../module/post")
 const bcrypt = require("bcrypt");
+const cloudinary = require("../config/cloudinary");
+
 const jwt = require("jsonwebtoken");
 
 const home = async (req,res)=>{
@@ -184,15 +186,63 @@ const test = async (req,res)=>{
   });
 }
 
+// const createpost = async (req, res) => {
+//   try {
+//     const { posturl, postcaption } = req.body;
+//     console.log(req.body);
+//     const username = req.user.username;
+
+//     const newPost = await post.create({
+//       postuser: username,
+//       posturl,
+//       postcaption,
+//     });
+
+//     res.status(201).json({
+//       success: true,
+//       message: "Post created successfully",
+//       newPost,
+//     });
+//   } catch (error) {
+//     console.log(error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
+
+
+
+
+
 const createpost = async (req, res) => {
   try {
-    const { posturl, postcaption } = req.body;
-    console.log(req.body);
+
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          { folder: "social_posts" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        )
+        .end(req.file.buffer);
+    });
+
+
+
+
+
+    const {postcaption } = req.body;
+    // console.log(req.body);
     const username = req.user.username;
 
     const newPost = await post.create({
-      postuser: username,
-      posturl,
+      postuser:username,
+      posturl: result.secure_url,
       postcaption,
     });
 
@@ -210,6 +260,16 @@ const createpost = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
 const sug = async (req, res) => {
   try {
     const loggedInUserId = req.user.username;
@@ -238,10 +298,15 @@ const sug = async (req, res) => {
 // profile
 const profile = async (req,res)=>{
 try{
-  
+  const loggedInUserId = req.user.username;
+  const owner = await post.find({
+    postuser: loggedInUserId,
+  });
+
   res.status(200).json({
     success: true,
-    
+    loggedInUserId,
+    owner, 
   });
 }
 catch(err){
