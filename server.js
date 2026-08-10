@@ -10,12 +10,7 @@ connect();
 
 const PORT = process.env.PORT 
 
-app.use(cors({
-    origin: [
-      "https://www.prajwal6.com.np/"
-    ],
-    credentials: true
-  }));
+app.use(cors());
 app.use(express.json())
 
 app.use('/api',routes)
